@@ -22,8 +22,20 @@ date: 2019-02-17 17:32:24.000000000 +09:00
 	- bundle
 		- `sudo gem install bundle`
 - **本地启动Jekyll**
-	- 在终端进入到myblog下，执行`bundle exec jekyll serve`
-	 ![Alt text](/assets/images/posts/blog-img1.png)
+	- 在终端进入到myblog下，执行`bundle exec jekyll serve`，效果如下
+	
+```shell
+Peter@Peter-MacBook:~/Private/blog/peter.github.io$ bundle exec jekyll serve
+Configuration file: /Users/Peter/Private/blog/peter.github.io/_config.yml
+            Source: /Users/Peter/Private/blog/peter.github.io
+       Destination: /Users/Peter/Private/blog/peter.github.io/_site
+ Incremental build: disabled. Enable with --incremental
+      Generating...
+                    done in 0.502 seconds.
+ Auto-regeneration: enabled for '/Users/Peter/Private/blog/peter.github.io'
+    Server address: http://127.0.0.1:4000
+  Server running... press ctrl-c to stop.
+```
 - **访问**
 	- 在上一步可以看到，`server address`，在浏览器中访问该地址即可访问
 - **修改配置** 在`_config.yml`文件里修改即可

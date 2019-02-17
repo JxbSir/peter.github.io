@@ -5,8 +5,8 @@
     <description>Hello，在下2012年涉足Apple Developer，至今在iOS/OSX领域混迹多年，本职工作以iOS为主</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 17 Feb 2019 20:33:54 +0800</pubDate>
-    <lastBuildDate>Sun, 17 Feb 2019 20:33:54 +0800</lastBuildDate>
+    <pubDate>Sun, 17 Feb 2019 23:52:28 +0800</pubDate>
+    <lastBuildDate>Sun, 17 Feb 2019 23:52:28 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -46,10 +46,23 @@
   &lt;/li&gt;
   &lt;li&gt;&lt;strong&gt;本地启动Jekyll&lt;/strong&gt;
     &lt;ul&gt;
-      &lt;li&gt;在终端进入到myblog下，执行&lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;
-   &lt;img src=&quot;/assets/images/posts/blog-img1.png&quot; alt=&quot;Alt text&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;在终端进入到myblog下，执行&lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;，效果如下&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Peter@Peter-MacBook:~/Private/blog/peter.github.io&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+Configuration file: /Users/Peter/Private/blog/peter.github.io/_config.yml
+            Source: /Users/Peter/Private/blog/peter.github.io
+       Destination: /Users/Peter/Private/blog/peter.github.io/_site
+ Incremental build: disabled. Enable with &lt;span class=&quot;nt&quot;&gt;--incremental&lt;/span&gt;
+      Generating...
+                    &lt;span class=&quot;k&quot;&gt;done in &lt;/span&gt;0.502 seconds.
+ Auto-regeneration: enabled &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'/Users/Peter/Private/blog/peter.github.io'&lt;/span&gt;
+    Server address: http://127.0.0.1:4000
+  Server running... press ctrl-c to stop.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
   &lt;li&gt;&lt;strong&gt;访问&lt;/strong&gt;
     &lt;ul&gt;
       &lt;li&gt;在上一步可以看到，&lt;code class=&quot;highlighter-rouge&quot;&gt;server address&lt;/code&gt;，在浏览器中访问该地址即可访问&lt;/li&gt;
