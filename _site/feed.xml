@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>皮特儿</title>
-    <description>Hi，本人是从事iOS/OSX开发多年</description>
+    <description>Hello，在下2012年涉足Apple Developer，至今在iOS/OSX领域混迹多年，本职工作以iOS为主</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 17 Feb 2019 19:06:49 +0800</pubDate>
-    <lastBuildDate>Sun, 17 Feb 2019 19:06:49 +0800</lastBuildDate>
+    <pubDate>Sun, 17 Feb 2019 20:33:54 +0800</pubDate>
+    <lastBuildDate>Sun, 17 Feb 2019 20:33:54 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
