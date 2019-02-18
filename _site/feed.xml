@@ -1,13 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>皮特儿</title>
+    <title>Peter's Den</title>
     <description>Hello，在下2012年涉足Apple Developer，至今在iOS/OSX领域混迹多年，本职工作以iOS为主</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 17 Feb 2019 23:52:28 +0800</pubDate>
-    <lastBuildDate>Sun, 17 Feb 2019 23:52:28 +0800</lastBuildDate>
+    <pubDate>Mon, 18 Feb 2019 18:45:51 +0800</pubDate>
+    <lastBuildDate>Mon, 18 Feb 2019 18:45:51 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>Java后端开发环境配置</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;最近有点时间，做了那么多年的客户端开发者，也想了解了解后端开发，目前公司的后端基本都是用Java的，所以今天来用Java + SpringBoot + MySql来简单了解下后端开发&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;环境介绍&quot;&gt;环境介绍&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;开发工具&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Intellij IDEA&lt;/code&gt;市面上也会有人用&lt;code class=&quot;highlighter-rouge&quot;&gt;Eclipse&lt;/code&gt;，不过应该大部分人还是喜欢用&lt;code class=&quot;highlighter-rouge&quot;&gt;IDEA&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;语言&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Java&lt;/code&gt;，想必大家都有所了解&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;框架&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;SpringBoot&lt;/code&gt;， 是由Pivotal团队提供的全新框架，其设计目的是用来简化新Spring应用的初始搭建以及开发过程&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;仓库&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Maven&lt;/code&gt;，这个应该不用多介绍吧&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;数据库&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;MySQL&lt;/code&gt;，数据库有很多，这边就不做比对，大家可以根据项目选择，我们就试试&lt;code class=&quot;highlighter-rouge&quot;&gt;MySQL&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;环境安装&quot;&gt;环境安装&lt;/h3&gt;
+&lt;h5 id=&quot;intellij-idea&quot;&gt;Intellij IDEA&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://www.jetbrains.com/idea/download/#section=mac&quot;&gt;官方地址&lt;/a&gt;
+关于注册码自行搜索&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;jdk&quot;&gt;JDK&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://www.oracle.com/technetwork/java/javase/downloads/index.html&quot;&gt;Oracle官网下载&lt;/a&gt; 下载Java SE 8u201的dmg文件，下载完安装即可&lt;/p&gt;
+
+  &lt;p&gt;可以在终端输入以下命令查看jdk环境：&lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/libexec/java_home -V&lt;/code&gt;&lt;/p&gt;
+
+  &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;peter@PeterdeMacBook-Pro:~/company/sss$ /usr/libexec/java_home -V
+Matching Java Virtual Machines (1):
+    1.8.0_201, x86_64:	&quot;Java SE 8&quot;	/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;  &lt;/div&gt;
+  &lt;p&gt;然后需要配置环境变量&lt;/p&gt;
+
+  &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/.bash_profile
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;  &lt;/div&gt;
+  &lt;p&gt;在结果中加入以下配置&lt;/p&gt;
+
+  &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+export JAVA_HOME
+CLASSPAHT=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+PATH=$JAVA_HOME/bin:$PATH:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;  &lt;/div&gt;
+  &lt;p&gt;然后输入&lt;code class=&quot;highlighter-rouge&quot;&gt;:wq&lt;/code&gt;保存，通过命令&lt;code class=&quot;highlighter-rouge&quot;&gt;source ~/.bash_profile&lt;/code&gt;使配置生效&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;tomcat&quot;&gt;Tomcat&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;运行Java项目的应用容器，因为Springboot是自动集成的，不需要开发者自行配置，方便很多，这就是Springboot的特点，很多配置此框架都帮忙设置好了&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;maven&quot;&gt;Maven&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;组件管理仓库，类似iOS中的&lt;code class=&quot;highlighter-rouge&quot;&gt;cathage&lt;/code&gt;/&lt;code class=&quot;highlighter-rouge&quot;&gt;cocoapods&lt;/code&gt;&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://maven.apache.org/download.cgi&quot;&gt;官方下载地址&lt;/a&gt;&lt;/p&gt;
+
+  &lt;p&gt;将Maven解压到&lt;code class=&quot;highlighter-rouge&quot;&gt;/Users/***/Java/env/maven&lt;/code&gt;下面，然后与&lt;code class=&quot;highlighter-rouge&quot;&gt;JDK&lt;/code&gt;一样配置下环境变量&lt;/p&gt;
+
+  &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;MAVEN_HOME=/Users/***/Java/env/maven
+PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;  &lt;/div&gt;
+  &lt;p&gt;然后输入&lt;code class=&quot;highlighter-rouge&quot;&gt;:wq&lt;/code&gt;保存，通过命令&lt;code class=&quot;highlighter-rouge&quot;&gt;source ~/.bash_profile&lt;/code&gt;使配置生效&lt;/p&gt;
+
+  &lt;blockquote&gt;
+    &lt;p&gt;注意：这边的&lt;code class=&quot;highlighter-rouge&quot;&gt;Path&lt;/code&gt;一定不要删除直接已经配置&lt;code class=&quot;highlighter-rouge&quot;&gt;$JAVA_HOME/bin&lt;/code&gt;&lt;/p&gt;
+
+    &lt;p&gt;当然，最好是这2步配置合并到一步来配置即可&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;mysql&quot;&gt;MySQL&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;如果Demo项目需要连接数据库的话，可以忽略&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;https://www.mysql.com/downloads/&quot;&gt;官方下载&lt;/a&gt;&lt;/p&gt;
+
+  &lt;p&gt;安装后，在&lt;code class=&quot;highlighter-rouge&quot;&gt;系统偏好设置&lt;/code&gt;里面可以看到&lt;code class=&quot;highlighter-rouge&quot;&gt;MySQL&lt;/code&gt;，默认已经启动服务&lt;/p&gt;
+
+  &lt;p&gt;通过&lt;code class=&quot;highlighter-rouge&quot;&gt;mysql -u root -p&lt;/code&gt;登录，默认密码在安装的时候可以看到&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;好了到这里环境都已经配置完毕接下来就可以享受springboot的乐趣了&quot;&gt;好了，到这里环境都已经配置完毕，接下来就可以享受SpringBoot的乐趣了~~~&lt;/h5&gt;
+
+&lt;p&gt;&lt;a href=&quot;../fisrtSpringboot&quot;&gt;开始第一个SpringBoot项目&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 18 Feb 2019 13:19:30 +0800</pubDate>
+        <link>http://localhost:4000/2019/02/JavaPrepare/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/JavaPrepare/</guid>
+        
+        
+      </item>
     
       <item>
         <title>在github搭建技术博客</title>
@@ -41,6 +136,11 @@
         &lt;ul&gt;
           &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo gem install bundle&lt;/code&gt;&lt;/li&gt;
         &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;安装时出现以下错误，请在命令后面加&lt;code class=&quot;highlighter-rouge&quot;&gt;-n /usr/local/bin&lt;/code&gt;
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ERROR:  While executing gem ... (Gem::FilePermissionError)
+  You don't have write permissions for the /usr/bin directory.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
       &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
@@ -99,8 +199,8 @@ Configuration file: /Users/Peter/Private/blog/peter.github.io/_config.yml
 &lt;/ul&gt;
 </description>
         <pubDate>Sun, 17 Feb 2019 16:32:24 +0800</pubDate>
-        <link>http://localhost:4000/2019/02/blog/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/02/blog/</guid>
+        <link>http://localhost:4000/2019/02/github_blog/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/github_blog/</guid>
         
         
       </item>

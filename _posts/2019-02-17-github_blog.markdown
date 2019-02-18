@@ -21,6 +21,11 @@ date: 2019-02-17 17:32:24.000000000 +09:00
 		- `sudo gem install jekyll`
 	- bundle
 		- `sudo gem install bundle`
+	- 安装时出现以下错误，请在命令后面加`-n /usr/local/bin`
+	```
+	ERROR:  While executing gem ... (Gem::FilePermissionError)
+	You don't have write permissions for the /usr/bin directory.
+	```
 - **本地启动Jekyll**
 	- 在终端进入到myblog下，执行`bundle exec jekyll serve`，效果如下
 	

@@ -77,4 +77,4 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
 
 ##### 好了，到这里环境都已经配置完毕，接下来就可以享受SpringBoot的乐趣了~~~
 
-[开始第一个SpringBoot项目](/fisrtSpringboot)
+[开始第一个SpringBoot项目](../fisrtSpringboot)
