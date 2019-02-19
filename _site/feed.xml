@@ -5,8 +5,8 @@
     <description>Hello，在下2012年涉足Apple Developer，至今在iOS/OSX领域混迹多年，本职工作以iOS为主</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 18 Feb 2019 18:45:51 +0800</pubDate>
-    <lastBuildDate>Mon, 18 Feb 2019 18:45:51 +0800</lastBuildDate>
+    <pubDate>Tue, 19 Feb 2019 10:42:16 +0800</pubDate>
+    <lastBuildDate>Tue, 19 Feb 2019 10:42:16 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -201,6 +201,62 @@ Configuration file: /Users/Peter/Private/blog/peter.github.io/_config.yml
         <pubDate>Sun, 17 Feb 2019 16:32:24 +0800</pubDate>
         <link>http://localhost:4000/2019/02/github_blog/</link>
         <guid isPermaLink="true">http://localhost:4000/2019/02/github_blog/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>创建第一个SpringBoot项目</title>
+        <description>&lt;h3 id=&quot;创建项目&quot;&gt;创建项目&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Create New Project&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;选择&lt;code class=&quot;highlighter-rouge&quot;&gt;Spring Initializr&lt;/code&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219100300_jaLdDE_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;根据需求配置Project Metadata&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219100608_oGtSGc_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;直接&lt;code class=&quot;highlighter-rouge&quot;&gt;Next&lt;/code&gt; - 暂时不用勾选其他&lt;/li&gt;
+  &lt;li&gt;下一步配置项目名称与项目路径，然后&lt;code class=&quot;highlighter-rouge&quot;&gt;Finish&lt;/code&gt;，项目就创建好了
+    &lt;blockquote&gt;
+      &lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：创建项目后，&lt;code class=&quot;highlighter-rouge&quot;&gt;SpringBoot&lt;/code&gt;会自动配置从&lt;code class=&quot;highlighter-rouge&quot;&gt;Maven&lt;/code&gt;下载依赖，所以需要点时间，可以看到底部有进度条&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;启动项目&quot;&gt;启动项目&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;配置&lt;code class=&quot;highlighter-rouge&quot;&gt;pom.xml&lt;/code&gt;，这个配置就是项目的配置文件，看下是否有这些依赖&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219101941_beyQLu_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;
+在&lt;code class=&quot;highlighter-rouge&quot;&gt;src&lt;/code&gt;目录里找到有一个类&lt;code class=&quot;highlighter-rouge&quot;&gt;FirstspringbootApplication&lt;/code&gt;，添加注解&lt;code class=&quot;highlighter-rouge&quot;&gt;@RestController&lt;/code&gt;&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219102424_Ui4vLw_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;
+右键&lt;code class=&quot;highlighter-rouge&quot;&gt;Run FirstspringbootApplication&lt;/code&gt;，看到以下日志，就代表Springboot配置完毕，端口是8080&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219102453_zIKPBu_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;
+然后，我们访问下看看&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219102600_FSPpnp_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;No message available&lt;/code&gt;报错了，那是因为我们没有配置这个地址的接收入口；我们来添加下&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219103132_FCgDi9_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;
+然后在启动访问下，ok，成功了&lt;/p&gt;
+
+  &lt;p&gt;&lt;img src=&quot;http://xbqn.nbshk.cn/20190219103549_ICrMy6_Screenshot.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;下一节继续介绍三层访问设计servicebizdal&quot;&gt;下一节继续介绍三层访问设计（Service+Biz+DAL）&lt;/h3&gt;
+
+</description>
+        <pubDate>Fri, 19 Feb 2016 20:30:30 +0800</pubDate>
+        <link>http://localhost:4000/2016/02/firstSpringboot/</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/02/firstSpringboot/</guid>
         
         
       </item>

@@ -6,17 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>Java后端开发环境配置</title>
-  <meta name="description" content="  最近有点时间，做了那么多年的客户端开发者，也想了解了解后端开发，目前公司的后端基本都是用Java的，所以今天来用Java + SpringBoot + MySql来简单了解下后端开发">
+  <title>创建第一个SpringBoot项目</title>
+  <meta name="description" content="创建项目  Create New Project  选择Spring Initializr">
   <meta name="author" content="Wei Wang">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Java后端开发环境配置">
-  <meta name="twitter:description" content="  最近有点时间，做了那么多年的客户端开发者，也想了解了解后端开发，目前公司的后端基本都是用Java的，所以今天来用Java + SpringBoot + MySql来简单了解下后端开发">
+  <meta name="twitter:title" content="创建第一个SpringBoot项目">
+  <meta name="twitter:description" content="创建项目  Create New Project  选择Spring Initializr">
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Java后端开发环境配置">
-  <meta property="og:description" content="  最近有点时间，做了那么多年的客户端开发者，也想了解了解后端开发，目前公司的后端基本都是用Java的，所以今天来用Java + SpringBoot + MySql来简单了解下后端开发">
+  <meta property="og:title" content="创建第一个SpringBoot项目">
+  <meta property="og:description" content="创建项目  Create New Project  选择Spring Initializr">
   
   <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
   <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/css/main.css">
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-  <link rel="canonical" href="http://localhost:4000/2019/02/JavaPrepare/">
+  <link rel="canonical" href="http://localhost:4000/2016/02/firstSpringboot/">
   <link rel="alternate" type="application/rss+xml" title="Peter's Den" href="http://localhost:4000/feed.xml">
   
   <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
@@ -124,97 +124,58 @@
             <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
   <header class="post-header">
     <div class="post-meta">
-      <time datetime="2019-02-18 13:19:30 +0800" itemprop="datePublished" class="post-meta__date date">2019-02-18</time> &#8226; <span class="post-meta__tags tags"></span>
+      <time datetime="2016-02-19 20:30:30 +0800" itemprop="datePublished" class="post-meta__date date">2016-02-19</time> &#8226; <span class="post-meta__tags tags"></span>
     </div>
-    <h1 class="post-title">Java后端开发环境配置</h1>
+    <h1 class="post-title">创建第一个SpringBoot项目</h1>
   </header>
 
   <section class="post">
-    <blockquote>
-  <p>最近有点时间，做了那么多年的客户端开发者，也想了解了解后端开发，目前公司的后端基本都是用Java的，所以今天来用Java + SpringBoot + MySql来简单了解下后端开发</p>
-</blockquote>
-
-<h3 id="环境介绍">环境介绍</h3>
+    <h3 id="创建项目">创建项目</h3>
 <ul>
-  <li><strong>开发工具</strong> <code class="highlighter-rouge">Intellij IDEA</code>市面上也会有人用<code class="highlighter-rouge">Eclipse</code>，不过应该大部分人还是喜欢用<code class="highlighter-rouge">IDEA</code></li>
-  <li><strong>语言</strong> <code class="highlighter-rouge">Java</code>，想必大家都有所了解</li>
-  <li><strong>框架</strong> <code class="highlighter-rouge">SpringBoot</code>， 是由Pivotal团队提供的全新框架，其设计目的是用来简化新Spring应用的初始搭建以及开发过程</li>
-  <li><strong>仓库</strong> <code class="highlighter-rouge">Maven</code>，这个应该不用多介绍吧</li>
-  <li><strong>数据库</strong> <code class="highlighter-rouge">MySQL</code>，数据库有很多，这边就不做比对，大家可以根据项目选择，我们就试试<code class="highlighter-rouge">MySQL</code></li>
+  <li><code class="highlighter-rouge">Create New Project</code></li>
+  <li>
+    <p>选择<code class="highlighter-rouge">Spring Initializr</code></p>
+
+    <p><img src="http://xbqn.nbshk.cn/20190219100300_jaLdDE_Screenshot.jpeg" alt="" /></p>
+  </li>
+  <li>
+    <p>根据需求配置Project Metadata</p>
+
+    <p><img src="http://xbqn.nbshk.cn/20190219100608_oGtSGc_Screenshot.jpeg" alt="" /></p>
+  </li>
+  <li>直接<code class="highlighter-rouge">Next</code> - 暂时不用勾选其他</li>
+  <li>下一步配置项目名称与项目路径，然后<code class="highlighter-rouge">Finish</code>，项目就创建好了
+    <blockquote>
+      <p><strong>注意</strong>：创建项目后，<code class="highlighter-rouge">SpringBoot</code>会自动配置从<code class="highlighter-rouge">Maven</code>下载依赖，所以需要点时间，可以看到底部有进度条</p>
+    </blockquote>
+  </li>
 </ul>
 
-<h3 id="环境安装">环境安装</h3>
-<h5 id="intellij-idea">Intellij IDEA</h5>
+<h3 id="启动项目">启动项目</h3>
 <blockquote>
-  <p><a href="https://www.jetbrains.com/idea/download/#section=mac">官方地址</a>
-关于注册码自行搜索</p>
-</blockquote>
+  <p>配置<code class="highlighter-rouge">pom.xml</code>，这个配置就是项目的配置文件，看下是否有这些依赖</p>
 
-<h5 id="jdk">JDK</h5>
-<blockquote>
-  <p><a href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">Oracle官网下载</a> 下载Java SE 8u201的dmg文件，下载完安装即可</p>
+  <p><img src="http://xbqn.nbshk.cn/20190219101941_beyQLu_Screenshot.jpeg" alt="" />
+在<code class="highlighter-rouge">src</code>目录里找到有一个类<code class="highlighter-rouge">FirstspringbootApplication</code>，添加注解<code class="highlighter-rouge">@RestController</code></p>
 
-  <p>可以在终端输入以下命令查看jdk环境：<code class="highlighter-rouge">/usr/libexec/java_home -V</code></p>
+  <p><img src="http://xbqn.nbshk.cn/20190219102424_Ui4vLw_Screenshot.jpeg" alt="" />
+右键<code class="highlighter-rouge">Run FirstspringbootApplication</code>，看到以下日志，就代表Springboot配置完毕，端口是8080</p>
 
-  <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>peter@PeterdeMacBook-Pro:~/company/sss$ /usr/libexec/java_home -V
-Matching Java Virtual Machines (1):
-    1.8.0_201, x86_64:	"Java SE 8"	/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
-/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
-</code></pre></div>  </div>
-  <p>然后需要配置环境变量</p>
+  <p><img src="http://xbqn.nbshk.cn/20190219102453_zIKPBu_Screenshot.jpeg" alt="" />
+然后，我们访问下看看</p>
 
-  <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim ~/.bash_profile
-</code></pre></div>  </div>
-  <p>在结果中加入以下配置</p>
+  <p><img src="http://xbqn.nbshk.cn/20190219102600_FSPpnp_Screenshot.jpeg" alt="" />
+<code class="highlighter-rouge">No message available</code>报错了，那是因为我们没有配置这个地址的接收入口；我们来添加下</p>
 
-  <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
-export JAVA_HOME
-CLASSPAHT=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
-PATH=$JAVA_HOME/bin:$PATH:
-</code></pre></div>  </div>
-  <p>然后输入<code class="highlighter-rouge">:wq</code>保存，通过命令<code class="highlighter-rouge">source ~/.bash_profile</code>使配置生效</p>
-</blockquote>
+  <p><img src="http://xbqn.nbshk.cn/20190219103132_FCgDi9_Screenshot.jpeg" alt="" />
+然后在启动访问下，ok，成功了</p>
 
-<h5 id="tomcat">Tomcat</h5>
-<blockquote>
-  <p>运行Java项目的应用容器，因为Springboot是自动集成的，不需要开发者自行配置，方便很多，这就是Springboot的特点，很多配置此框架都帮忙设置好了</p>
-</blockquote>
-
-<h5 id="maven">Maven</h5>
-<blockquote>
-  <p>组件管理仓库，类似iOS中的<code class="highlighter-rouge">cathage</code>/<code class="highlighter-rouge">cocoapods</code></p>
-
-  <p><a href="http://maven.apache.org/download.cgi">官方下载地址</a></p>
-
-  <p>将Maven解压到<code class="highlighter-rouge">/Users/***/Java/env/maven</code>下面，然后与<code class="highlighter-rouge">JDK</code>一样配置下环境变量</p>
-
-  <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MAVEN_HOME=/Users/***/Java/env/maven
-PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
-</code></pre></div>  </div>
-  <p>然后输入<code class="highlighter-rouge">:wq</code>保存，通过命令<code class="highlighter-rouge">source ~/.bash_profile</code>使配置生效</p>
-
-  <blockquote>
-    <p>注意：这边的<code class="highlighter-rouge">Path</code>一定不要删除直接已经配置<code class="highlighter-rouge">$JAVA_HOME/bin</code></p>
-
-    <p>当然，最好是这2步配置合并到一步来配置即可</p>
-  </blockquote>
-</blockquote>
-
-<h5 id="mysql">MySQL</h5>
-<blockquote>
-  <p>如果Demo项目需要连接数据库的话，可以忽略</p>
-
-  <p><a href="https://www.mysql.com/downloads/">官方下载</a></p>
-
-  <p>安装后，在<code class="highlighter-rouge">系统偏好设置</code>里面可以看到<code class="highlighter-rouge">MySQL</code>，默认已经启动服务</p>
-
-  <p>通过<code class="highlighter-rouge">mysql -u root -p</code>登录，默认密码在安装的时候可以看到</p>
+  <p><img src="http://xbqn.nbshk.cn/20190219103549_ICrMy6_Screenshot.jpeg" alt="" /></p>
 
 </blockquote>
 
-<h5 id="好了到这里环境都已经配置完毕接下来就可以享受springboot的乐趣了">好了，到这里环境都已经配置完毕，接下来就可以享受SpringBoot的乐趣了~~~</h5>
+<h3 id="下一节继续介绍三层访问设计servicebizdal">下一节继续介绍三层访问设计（Service+Biz+DAL）</h3>
 
-<p><a href="../fisrtSpringboot">开始第一个SpringBoot项目</a></p>
 
   </section>
 </article>
@@ -222,14 +183,14 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
 <section class="read-more">
    
    
-   
-   
    <div class="read-more-item">
-       <span class="read-more-item-dim">更早的文章</span>
+       <span class="read-more-item-dim">最近的文章</span>
        <h2 class="post-list__post-title post-title"><a href="/2019/02/github_blog/" title="link to 在github搭建技术博客">在github搭建技术博客</a></h2>
        <p class="excerpt">准备  域名 需要一个可访问的域名，例如 jxb.name，任何域名都可以，没有的话购买一个也很便宜  github 想必，做技术的一般都有这里使用Jekyll系统 + vno主题  Jekyll 中文介绍喵神的vno主题  注意：  安装环境时关于homebrew的安装、镜像的修改，不是本次的重点，这边不再多过介绍  下载主题 将喵神的vno主题下载到本地文件夹myblog  安装Jekyll          Jekyll                  sudo gem insta...&hellip;</p>
        <div class="post-list__meta"><time datetime="2019-02-17 16:32:24 +0800" class="post-list__meta--date date">2019-02-17</time> &#8226; <span class="post-list__meta--tags tags"></span><a class="btn-border-small" href=/2019/02/github_blog/>继续阅读</a></div>
    </div>
+   
+   
    
 </section>
 
@@ -239,8 +200,8 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
     <script>
     
     var disqus_config = function () {
-        this.page.url = "http://localhost:4000/2019/02/JavaPrepare/";
-        this.page.identifier = "/2019/02/JavaPrepare/";
+        this.page.url = "http://localhost:4000/2016/02/firstSpringboot/";
+        this.page.identifier = "/2016/02/firstSpringboot/";
     };
 
     var disqus_shortname = 'vno-jekyll';
