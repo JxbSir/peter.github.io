@@ -2,6 +2,7 @@
 layout: post
 title: 创建第一个SpringBoot项目
 date: 2019-02-19 20:30:30.000000000 +08:00
+tags: Java
 ---
 
 ### 创建项目

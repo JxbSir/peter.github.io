@@ -2,6 +2,7 @@
 layout: post
 title: 在github搭建技术博客
 date: 2019-02-17 17:32:24.000000000 +09:00
+tags: Blog
 ---
 
 ### 准备
