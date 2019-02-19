@@ -5,6 +5,7 @@ date: 2019-02-19 20:30:30.000000000 +08:00
 ---
 
 ### 创建项目
+- 关于如何配置访问请看[上一节](../JavaPrepare)
 - `Create New Project`
 - 选择`Spring Initializr`
 
@@ -37,5 +38,7 @@ date: 2019-02-19 20:30:30.000000000 +08:00
 > ![](http://xbqn.nbshk.cn/20190219103549_ICrMy6_Screenshot.jpeg)
 > 
 
-### 下一节继续介绍三层访问设计（Service+Biz+DAL）
+### 后端开发的三层框架 
+> 下一节继续介绍三层访问设计（Service+Biz+DAL）
+
 
