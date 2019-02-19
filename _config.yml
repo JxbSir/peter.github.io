@@ -44,5 +44,5 @@ social:
 
 # Google Analytics
 ga:
-    # id: your_ga_id
-    # host: your_host
+    id: UA-72007485-5
+    host: jinxuebin.cn
