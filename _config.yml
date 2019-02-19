@@ -13,12 +13,12 @@ permalink: /:year/:month/:title/
 highlighter: rouge
 
 # supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: red
+cover_color: blue
 
 # The blog button should not be removed.
 blog_button:
-    title: Blog
-    description: Visit blog
+    title: Blogs
+    description: 访问Peter's all blogs
 
 # Navigation buttons in the front page.
 nav:
@@ -40,7 +40,7 @@ social:
     github: jxbsir
     # twitter: onevcat
     # gplus: 107108267983477358170
-    mail: i@jxb.name
+    mail: i@jinxuebin.cn
 
 # Google Analytics
 ga:
