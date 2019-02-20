@@ -265,4 +265,17 @@ public class DemoWebApplication {
 > 
 ![](http://xbqn.nbshk.cn/20190220170125_FRbzEi_Screenshot.jpeg)
 
+### 这边把建表的SQL语句提供下
+```sql
+create table Products
+(
+  ItemId   int auto_increment
+    primary key,
+  ItemName varchar(256) null,
+  ItemDesc varchar(256) null,
+  Price    double       not null,
+  ShopId   int          not null
+);
+```
+
 

@@ -405,6 +405,18 @@ mybatis.configuration.cache-enabled=true
   <p><img src="http://xbqn.nbshk.cn/20190220170125_FRbzEi_Screenshot.jpeg" alt="" /></p>
 </blockquote>
 
+<h3 id="这边把建表的sql语句提供下">这边把建表的SQL语句提供下</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">create</span> <span class="k">table</span> <span class="n">Products</span>
+<span class="p">(</span>
+  <span class="n">ItemId</span>   <span class="n">int</span> <span class="n">auto_increment</span>
+    <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+  <span class="n">ItemName</span> <span class="n">varchar</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span> <span class="k">null</span><span class="p">,</span>
+  <span class="n">ItemDesc</span> <span class="n">varchar</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span> <span class="k">null</span><span class="p">,</span>
+  <span class="n">Price</span>    <span class="n">double</span>       <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="n">ShopId</span>   <span class="n">int</span>          <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
 
   </section>
 </article>
