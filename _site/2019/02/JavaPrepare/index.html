@@ -62,7 +62,7 @@
           <div>
             <nav class="cover-navigation cover-navigation--primary">
               <ul class="navigation">
-                <li class="navigation__item"><a href="/#blog" title="Visit blog" class="blog-button">Blog</a></li>
+                <li class="navigation__item"><a href="/#blog" title="访问Peter's all blogs" class="blog-button">Blogs</a></li>
                 
               </ul>
             </nav>
@@ -98,7 +98,7 @@
   
   <!-- Email -->
   <li class="navigation__item">
-    <a href="mailto:i@jxb.name" title="Contact me">
+    <a href="mailto:i@jinxuebin.cn" title="Contact me">
       <i class='social fa fa-envelope'></i>
       <span class="label">Email</span>
     </a>
@@ -124,7 +124,7 @@
             <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
   <header class="post-header">
     <div class="post-meta">
-      <time datetime="2019-02-18 13:19:30 +0800" itemprop="datePublished" class="post-meta__date date">2019-02-18</time> &#8226; <span class="post-meta__tags tags"></span>
+      <time datetime="2019-02-18 13:19:30 +0800" itemprop="datePublished" class="post-meta__date date">2019-02-18</time> &#8226; <span class="post-meta__tags tags">Java</span>
     </div>
     <h1 class="post-title">Java后端开发环境配置</h1>
   </header>
@@ -222,13 +222,21 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
 <section class="read-more">
    
    
+   <div class="read-more-item">
+       <span class="read-more-item-dim">最近的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2019/02/firstSpringboot/" title="link to 创建第一个SpringBoot项目">创建第一个SpringBoot项目</a></h2>
+       <p class="excerpt">创建项目  关于如何配置访问请看上一节  Create New Project      选择Spring Initializr            根据需求配置Project Metadata        直接Next - 暂时不用勾选其他  下一步配置项目名称与项目路径，然后Finish，项目就创建好了          注意：创建项目后，SpringBoot会自动配置从Maven下载依赖，所以需要点时间，可以看到底部有进度条      启动项目  配置pom.xml，这个配置就是...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2019-02-19 20:30:30 +0800" class="post-list__meta--date date">2019-02-19</time> &#8226; <span class="post-list__meta--tags tags">Java</span><a class="btn-border-small" href=/2019/02/firstSpringboot/>继续阅读</a></div>
+   </div>
+   
+   
    
    
    <div class="read-more-item">
        <span class="read-more-item-dim">更早的文章</span>
        <h2 class="post-list__post-title post-title"><a href="/2019/02/github_blog/" title="link to 在github搭建技术博客">在github搭建技术博客</a></h2>
        <p class="excerpt">准备  域名 需要一个可访问的域名，例如 jxb.name，任何域名都可以，没有的话购买一个也很便宜  github 想必，做技术的一般都有这里使用Jekyll系统 + vno主题  Jekyll 中文介绍喵神的vno主题  注意：  安装环境时关于homebrew的安装、镜像的修改，不是本次的重点，这边不再多过介绍  下载主题 将喵神的vno主题下载到本地文件夹myblog  安装Jekyll          Jekyll                  sudo gem insta...&hellip;</p>
-       <div class="post-list__meta"><time datetime="2019-02-17 16:32:24 +0800" class="post-list__meta--date date">2019-02-17</time> &#8226; <span class="post-list__meta--tags tags"></span><a class="btn-border-small" href=/2019/02/github_blog/>继续阅读</a></div>
+       <div class="post-list__meta"><time datetime="2019-02-17 16:32:24 +0800" class="post-list__meta--date date">2019-02-17</time> &#8226; <span class="post-list__meta--tags tags">Blog</span><a class="btn-border-small" href=/2019/02/github_blog/>继续阅读</a></div>
    </div>
    
 </section>
@@ -243,7 +251,7 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
         this.page.identifier = "/2019/02/JavaPrepare/";
     };
 
-    var disqus_shortname = 'vno-jekyll';
+    var disqus_shortname = 'peter';
     
     (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -263,7 +271,7 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
 
             <section class="footer">
     <footer>
-    	<span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2019-02-19 生成，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题</a> - &copy; 2019</span>
+    	<span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2019-02-20 生成，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题</a> - &copy; 2019</span>
     	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
     </footer>
 </section>
@@ -275,6 +283,15 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH:
 
 <script type="text/javascript" src="/js/main.js"></script>
 
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-72007485-5', 'jinxuebin.cn');
+    ga('send', 'pageview');
+</script>
 
 
     
