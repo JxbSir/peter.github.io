@@ -260,6 +260,9 @@ public class DemoWebApplication {
 }
 ```
 
+### 类关系图
+![](http://xbqn.nbshk.cn/20190221155847_3Miqof_Screenshot.jpeg)
+
 ### OK，这样就基本完成了，然后启动下看看，若没报错就成功了
 > 访问地址：`http://127.0.0.1:8080/book?id=1`，可以看到数据了
 > 
