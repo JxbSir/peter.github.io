@@ -145,14 +145,58 @@ public static BeanFactory bindViaCode(BeanDefinitionRegistry registry) {
 ```
 > - 注解方式
 > 	- 这个应该是最常用的也是推荐的方式：@Autowired `在Spring2.5引入了@Autowired注解` 
-> 	- **@Autowired原理**：其实在启动Spring IoC时，容器自动装载了一个AutowiredAnnotationBeanPostProcessor后置处理器，当容器扫描到@Autowied、@Resource或@Inject时，就会在IoC容器自动查找需要的bean，并装配给该对象的属性
+> 	- `@Autowire`是Spring引入的，其实Java自己也设计了一个叫`@Resource`
+> 	- **@Autowired原理**：其实在启动Spring IoC时，容器自动装载了一个`AutowiredAnnotationBeanPostProcessor`后置处理器，当容器扫描到@Autowied、@Resource或@Inject时，就会在IoC容器自动查找需要的bean，并装配给该对象的属性
 > ![](http://xbqn.nbshk.cn/20190222104505_b8cQez_Screenshot.jpeg)
 
 ### 2.ApplicationContext
-> ApplicationContext在BeanFactory的基础上构建，是相对比较高 级的容器实现，除了拥有BeanFactory的所有支持，ApplicationContext还提供了其他高级特性，比如事件发布、国际化信息支持等，这些会在后面详述。ApplicationContext所管理 的对象，在该类型容器启动之后，默认全部初始化并绑定完成。所以，相对于BeanFactory来 说，ApplicationContext要求更多的系统资源，同时，因为在启动时就完成所有初始化，容 器启动时间较之BeanFactory也会长一些。在那些系统资源充足，并且要求更多功能的场景中，ApplicationContext类型的容器是比较合适的选择。
+> ApplicationContext在BeanFactory的基础上构建，是相对比较高级的容器实现，除了拥有BeanFactory的所有支持，ApplicationContext还提供了其他高级特性，比如事件发布、国际化信息支持等，这些会在后面详述。ApplicationContext所管理的对象，在该类型容器启动之后，默认全部初始化并绑定完成。所以，相对于BeanFactory来说，ApplicationContext要求更多的系统资源，同时，因为在启动时就完成所有初始化，容器启动时间较之BeanFactory也会长一些。在那些系统资源充足，并且要求更多功能的场景中，ApplicationContext类型的容器是比较合适的选择。
 > 
-> ！！！待补充
+> *由于ApplicationContext是`拥有BeanFactory所有功能`，所以在BeanFactory里介绍过的这边就不再重复赘述。*
 > 
+> ApplicationContext通过Xml配置，获取对象的示例代码：
+> ![](http://xbqn.nbshk.cn/20190222131945_hExDVX_Screenshot.jpeg)
+> 
+> #### 高级特性
+> - **ApplicationContext支持统一资源加载**：是因为它是继承了ResourceLoader类
+> 
+```
+ByteArrayResource。将字节(byte)数组提供的数据作为一种资源进行封装，如果通过InputStream形式访问该类型的资源，该实现会根据字节数组的数据，构造相应的ByteArray-
+InputStream并返回。
+>
+􏰀ClassPathResource。该实现从Java应用程序的ClassPath中加载具体资源并进行封装，可以使
+用指定的类加载器(ClassLoader)或者给定的类进行资源加载。
+􏰀 
+FileSystemResource。对java.io.File类型的封装，所以，我们可以以文件或者URL的形式对该类型资源进行访问，只要能跟File打的交道，基本上跟FileSystemResource也可以。
+􏰀
+UrlResource。通过java.net.URL进行的具体资源查找定位的实现类，内部委派URL进行具
+体的资源操作。
+􏰀	
+InputStreamResource。将给定的InputStream视为一种资源的Resource实现类，较为少用。如果以上这些资源实现还不能满足要求，那么我们还可以根据相应场景给出自己的实现，只需实 12
+可能的情况下，以ByteArrayResource以及其他形式资源实现代之。
+```
+> - **国际化信息支持**：对于Java中的国际化信息处理，主要涉及两个类，即java.util.Locale和java.util.ResourceBundle
+> 	- **Locale**：不同的Locale代表不同的国家和地区，每个国家和地区在Locale这里都有相应的简写代码表示，包括语言代码以及国家代码，这些代码是ISO标准代码。
+> 	- **ResourceBundle**：ResourceBundle用来保存特定于某个Locale的信息(可以是String类型信息，也可以是任何类型 的对象)。
+> 	- **MessageSource**：在JavaSE的国际化基础上进一步抽象了MessageSource接口
+> 
+```
+public interface MessageSource {
+	String getMessage(String code, Object[] args, String defaultMessage, Locale locale);
+	String getMessage(String code, Object[] args, Locale locale) throws NoSuchMessageException;
+	String getMessage(MessageSourceResolvable resolvable, Locale locale) throws ➥ NoSuchMessage zException;
+}
+```
+> - **容器内部事件发布**
+> 	- **ApplicationEvent**：Spring容器自定义事件类型，继承自 java.util.EventObject，ContextClosedEvent,ContextRefreshedEvent、RequestHandlerEvent
+> 	- **ApplicationListener**：Spring容器内使用的自定义事件监听器接口，继承自java.util.EventListener ，ApplicationContext容器在启动时，会自动识别并加载 EventListener类型bean定义，一旦容器内有事件发布，将通知这些注册到容器的EventListener
+> 	- **ApplicationContext**：ApplicationContext 继承了ApplicationEventPublisher 接口，所以ApplicationContext就是担当的就是事件发布者的角色
+> 	- **ApplicationEventMuticaster**：实现了监听器的管理功能
 
 
-最后，感谢书籍《Spring揭秘》，通过此书对Spring有一定的了解。
+### 3.小结BeanFactory与ApplicationContext有什么不同？
+- ApplicationContext包含BeanFactory所有功能，并拥有其他高级特性
+- BeanFactory是默认lazy-load，ApplicationContext默认是全部初始化并绑定
+
+## 总结
+以上就是Spring IoC容器的大致介绍，最后，感谢书籍《Spring揭秘》，通过此书对Spring有一定的了解。
