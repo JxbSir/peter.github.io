@@ -199,4 +199,4 @@ public interface MessageSource {
 - BeanFactory是默认lazy-load，ApplicationContext默认是全部初始化并绑定
 
 ## 总结
-以上就是Spring IoC容器的大致介绍，最后，感谢书籍《Spring揭秘》，通过此书对Spring有一定的了解。
+> 以上就是Spring IoC容器的大致介绍，最后，感谢书籍《Spring揭秘》，通过此书对Spring有一定的了解。
