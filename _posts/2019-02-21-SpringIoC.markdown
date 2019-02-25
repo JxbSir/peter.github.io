@@ -198,5 +198,86 @@ public interface MessageSource {
 - ApplicationContext包含BeanFactory所有功能，并拥有其他高级特性
 - BeanFactory是默认lazy-load，ApplicationContext默认是全部初始化并绑定
 
+## IoC实现原理
+定义Reader核心类：IoCReader
+
+```java
+package cn.jinxuebin.demoioc;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import java.io.InputStream;
+import java.util.List;
+
+/**
+ * @author Peter
+ * @description IoC原理
+ * @data 2019-02-25
+ */
+
+public class IoCReader {
+
+    private String url;
+
+    public IoCReader(String url) {
+        this.url = url;
+    }
+
+    public Object getBean(String id) throws Exception {
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(url);
+        SAXReader reader = new SAXReader();
+        Document document = reader.read(stream);
+        Element root = document.getRootElement();
+        List<Element> list = root.elements();
+        Object value = null;
+        for (int i = 0; i < list.size(); i++) {
+            Element e = list.get(i);
+            if (!e.attributeValue("id").equals(id)) {
+                continue;
+            }
+
+            String clsName = e.attributeValue("class");
+            Class<?> c = Class.forName(clsName);
+            value = c.newInstance();
+            break;
+        }
+        
+        return value;
+    }
+
+}
+```
+
+创建xml添加bean
+
+```
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="product" class="cn.jinxuebin.demoioc.Product"></bean>
+</beans>
+```
+
+然后获取bean对象
+
+```
+IoCReader reader = new IoCReader("bean.xml");
+
+try {
+	Object obj = reader.getBean("product");
+	System.out.println(obj.toString());
+} catch (Exception e) {
+	System.out.println(e.toString());
+}
+```
+
+结果，反射成功
+
+![](http://xbqn.nbshk.cn/20190225165203_XPwztm_Screenshot.jpeg)
+
+以上就是IoC的伪代码
+
+
 ## 总结
 > 以上就是Spring IoC容器的大致介绍，最后，感谢书籍《Spring揭秘》，通过此书对Spring有一定的了解。
