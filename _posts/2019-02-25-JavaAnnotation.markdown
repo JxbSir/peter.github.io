@@ -14,21 +14,21 @@ tags: Java
 > Java 定义了一套注解，共有 7 个，3 个在 java.lang 中，剩下 4 个在 java.lang.annotation 中
 
 #### 作用在代码的注解是
-
-- @Override - 检查该方法是否是重载方法。如果发现其父类，或者是引用的接口中并没有该方法时，会报编译错误。
-- @Deprecated - 标记过时方法。如果使用该方法，会报编译警告。
-- @SuppressWarnings - 指示编译器去忽略注解中声明的警告。
+- @Override：检查该方法是否是重载方法。如果发现其父类，或者是引用的接口中并没有该方法时，会报编译错误。
+- @Deprecated：标记过时方法。如果使用该方法，会报编译警告。
+- @SuppressWarnings：指示编译器去忽略注解中声明的警告。
+- @Resource：是JDK1.6支持的注解，默认按照名称进行装配，名称可以通过name属性进行指定。也提供按照byType 注入。
 
 #### 作用在其他注解的注解(或者说 元注解)是:
-- @Retention - 标识这个注解怎么保存，是只在代码中，还是编入class文件中，或者是在运行时可以通过反射访问。
-- @Documented - 标记这些注解是否包含在用户文档中。
-- @Target - 标记这个注解应该是哪种 Java 成员。
-- @Inherited - 标记这个注解是继承于哪个注解类(默认 注解并没有继承于任何子类)
+- @Retention：标识这个注解怎么保存，是只在代码中，还是编入class文件中，或者是在运行时可以通过反射访问。
+- @Documented：标记这些注解是否包含在用户文档中。
+- @Target：标记这个注解应该是哪种 Java 成员。
+- @Inherited：标记这个注解是继承于哪个注解类(默认 注解并没有继承于任何子类)
 
 #### 从 Java 7 开始，额外添加了 3 个注解:
-- @SafeVarargs - Java 7 开始支持，忽略任何使用参数为泛型变量的方法或构造函数调用产生的警告。
-- @FunctionalInterface - Java 8 开始支持，标识一个匿名函数或函数式接口。
-- @Repeatable - Java 8 开始支持，标识某注解可以在同一个声明上使用多次。
+- @SafeVarargs：Java 7 开始支持，忽略任何使用参数为泛型变量的方法或构造函数调用产生的警告。
+- @FunctionalInterface：Java 8 开始支持，标识一个匿名函数或函数式接口。
+- @Repeatable：Java 8 开始支持，标识某注解可以在同一个声明上使用多次。
 
 ## Spring注解
 - @Controller：用于标记在一个类上，使用它标记的类就是一个SpringMVC Controller 对象。分发处理器将会扫描使用了该注解的类的方法。通俗来说，被Controller标记的类就是一个控制器，这个类中的方法，就是相应的动作。
@@ -51,12 +51,10 @@ tags: Java
     - 告诉Spring，让Spring创建一个名字叫“userDao”的UserDaoImpl实例。
     - 用来表明该类是用来执行与数据库相关的操作（即dao对象），并支持自动处理数据库操作产生的异常
 - @Autowired：它可以对类成员变量、方法及构造函数进行标注，完成自动装配的工作。 通过 @Autowired的使用来消除 set ，get方法。
-- @Resource
-    - @Resource后面没有任何内容，默认通过name属性去匹配bean，找不到再按type去匹配
-    - 指定了name或者type则根据指定的类型去匹配bean
-    - 指定了name和type则根据指定的name和type去匹配bean，任何一个不匹配都将报错
-    - @Autowired和@Resource两个注解的区别：
-        - @Autowired默认按照byType方式进行bean匹配，@Resource默认按照byName方式进行bean匹配
-        - @Autowired是Spring的注解，@Resource是J2EE的注解，这个看一下导入注解的时候这两个注解的包名就一清二楚了
 - @Component：泛指各种组件，就是说当我们的类不属于各种归类的时候
 - @Scope：Spring默认产生的bean是单例的，假如我不想使用单例怎么办，xml文件里面可以在bean里面配置scope属性。注解也是一样，配置@Scope即可，默认是"singleton"即单例，"prototype"表示原型即每次都会new一个新的出来。
+
+## 对比
+- @Autowired和@Resource两个注解的区别：
+    - @Autowired默认按照byType方式进行bean匹配，@Resource默认按照byName方式进行bean匹配
+    - @Autowired是Spring的注解，@Resource是J2EE的注解，这个看一下导入注解的时候这两个注解的包名就一清二楚了
