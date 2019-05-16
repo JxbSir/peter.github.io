@@ -1,0 +1,722 @@
+---
+layout: post
+title: iOS Runtime深度解析
+date: 2019-05-20 20:00:00
+tags: iOS
+---
+
+# 什么是Runtime？
+> Objective-C是基础C语言扩展出来的一门语言，并且是加入了面向对象特性和Smalltalk式的消息发送机制；然后这个扩展的核心，就是Runtime，它是Objective-C面向对象和动态机制的基石。
+> 
+> [Runtime源码地址](https://opensource.apple.com/source/objc4/)
+
+# 为什么说Objective-C是一门动态语言？
+> 在说为什么之前首先来看下什么是静态语言，什么是动态语言？
+> 
+- 静态语言：强类型语言，静态语言是在编译时变量的数据类型即可确定的语言，多数静态类型语言要求在使用变量之前必须声明数据类型。
+- 动态语言：弱类型语言，动态语言是在运行时确定数据类型的语言。变量使用之前不需要类型声明，通常变量的类型是被赋值的那个值的类型。
+
+> 由于Objective-C的核心是Runtime，Runtime机制是在编译时不会做强类型的检测，在运行时才确定类型，故Objective-C是动态语言。
+
+# 对象是什么？对象是怎么创建的？
+##### 什么是Objc对象呢？
+> objc中的对象是一个指向ClassObject地址的变量；objc中对象是类的对象，类是元类的对象（元类会在下面解释）
+
+##### 创建过程
+> 一般我们上层创建对象无非就是`alloc`或者`new`，但是他们底层是做了什么呢？还有他们两者有啥区别呢？今天我们来看下~~
+> 
+> 可以在Object.mm源码中看到
+> 
+```
++ (id)alloc
+{
+	return (*_zoneAlloc)((Class)self, 0, malloc_default_zone()); 
+}
++ (id)new
+{
+	id newObject = (*_alloc)((Class)self, 0);
+	Class metaClass = self->ISA();
+	if (class_getVersion(metaClass) > 1)
+	    return [newObject init];
+	else
+	    return newObject;
+}
+```
+> 可以看到`alloc`是使用了`_zoneAlloc `，而`new`里面是仅仅使用了`_alloc`，所以他们之间的区别不大，仅仅只是`alloc`内存上分配了zone，那么zone这玩意是什么呢？
+> 
+> *Zone：它是给对象分配内存的时候，把关联的对象分配到一个相邻的内存区域内，以便于调用时消耗很少的代价，提升了程序处理速度；*
+> 
+> 最终真正创建对象的函数是下面这个
+> 
+```
+// Call [cls alloc] or [cls allocWithZone:nil], with appropriate 
+// shortcutting optimizations.
+static ALWAYS_INLINE id
+callAlloc(Class cls, bool checkNil, bool allocWithZone=false)
+{
+    if (slowpath(checkNil && !cls)) return nil;
+#if __OBJC2__
+    if (fastpath(!cls->ISA()->hasCustomAWZ())) {
+        // No alloc/allocWithZone implementation. Go straight to the allocator.
+        // fixme store hasCustomAWZ in the non-meta class and 
+        // add it to canAllocFast's summary
+        if (fastpath(cls->canAllocFast())) {
+            // No ctors, raw isa, etc. Go straight to the metal.
+            bool dtor = cls->hasCxxDtor();
+            id obj = (id)calloc(1, cls->bits.fastInstanceSize());
+            if (slowpath(!obj)) return callBadAllocHandler(cls);
+            obj->initInstanceIsa(cls, dtor);
+            return obj;
+        }
+        else {
+            // Has ctor or raw isa or something. Use the slower path.
+            id obj = class_createInstance(cls, 0);
+            if (slowpath(!obj)) return callBadAllocHandler(cls);
+            return obj;
+        }
+    }
+#endif
+    // No shortcuts available.
+    if (allocWithZone) return [cls allocWithZone:nil];
+    return [cls alloc];
+}
+```
+> 
+> `obj->initInstanceIsa(cls, dtor);` 看字面意思就是对这个对象设置isa指针
+>
+> 若不支持allocFast `fastpath(cls->canAllocFast())`，则是通过下面的函数来创建对象
+> 
+> 
+```
+static __attribute__((always_inline)) 
+id
+_class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone, 
+                              bool cxxConstruct = true, 
+                              size_t *outAllocatedSize = nil)
+{
+    if (!cls) return nil;
+    assert(cls->isRealized());
+    // Read class's info bits all at once for performance
+    bool hasCxxCtor = cls->hasCxxCtor();
+    bool hasCxxDtor = cls->hasCxxDtor();
+    bool fast = cls->canAllocNonpointer();
+    size_t size = cls->instanceSize(extraBytes);
+    if (outAllocatedSize) *outAllocatedSize = size;
+    id obj;
+    if (!zone  &&  fast) {
+        obj = (id)calloc(1, size);
+        if (!obj) return nil;
+        obj->initInstanceIsa(cls, hasCxxDtor);
+    } 
+    else {
+        if (zone) {
+            obj = (id)malloc_zone_calloc ((malloc_zone_t *)zone, 1, size);
+        } else {
+            obj = (id)calloc(1, size);
+        }
+        if (!obj) return nil;
+        // Use raw pointer isa on the assumption that they might be 
+        // doing something weird with the zone or RR.
+        obj->initIsa(cls);
+    }
+    if (cxxConstruct && hasCxxCtor) {
+        obj = _objc_constructOrFree(obj, cls);
+    }
+    return obj;
+}
+```
+
+
+# Runtime中Objective-C的数据结构
+> ##### `objc_object`
+> 
+```
+struct objc_object {
+private:
+    isa_t isa;
+    // 下面省略...
+    ***
+} 
+```
+> 
+> ##### `isa_t`
+> 
+```
+union isa_t {
+    isa_t() { }
+    isa_t(uintptr_t value) : bits(value) { }
+    Class cls;
+    uintptr_t bits;
+#if defined(ISA_BITFIELD)
+    struct {
+        ISA_BITFIELD;  // defined in isa.h
+    };
+#endif
+};
+```
+>
+> ##### `objc_class` 在objc-runtime.h，原来的那份是在runtime.h中，早已过时
+> 
+```
+struct objc_class : objc_object {
+    // Class ISA;
+    Class superclass;
+    cache_t cache;             // formerly cache pointer and vtable
+    class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags
+    // 下面省略...
+    ***
+}
+```
+>
+> ##### `class_ro_t` class中存readonly部分
+> 
+```
+struct class_ro_t {
+    uint32_t flags;
+    uint32_t instanceStart;
+    uint32_t instanceSize;
+#ifdef __LP64__
+    uint32_t reserved;
+#endif
+    const uint8_t * ivarLayout;
+    const char * name;
+    method_list_t * baseMethodList;
+    protocol_list_t * baseProtocols;
+    const ivar_list_t * ivars;
+    const uint8_t * weakIvarLayout;
+    property_list_t *baseProperties;
+    method_list_t *baseMethods() const {
+        return baseMethodList;
+    }
+};
+```
+>
+> ##### `class_rw_t` class中存readwrite部分
+>
+```
+struct class_rw_t {
+    // Be warned that Symbolication knows the layout of this structure.
+    uint32_t flags;
+    uint32_t version;
+    const class_ro_t *ro;
+    method_array_t methods;
+    property_array_t properties;
+    protocol_array_t protocols;
+    Class firstSubclass;
+    Class nextSiblingClass;
+    char *demangledName;
+#if SUPPORT_INDEXED_ISA
+    uint32_t index;
+#endif
+    void setFlags(uint32_t set) 
+    {
+        OSAtomicOr32Barrier(set, &flags);
+    }
+    void clearFlags(uint32_t clear) 
+    {
+        OSAtomicXor32Barrier(clear, &flags);
+    }
+    // set and clear must not overlap
+    void changeFlags(uint32_t set, uint32_t clear) 
+    {
+        assert((set & clear) == 0);
+        uint32_t oldf, newf;
+        do {
+            oldf = flags;
+            newf = (oldf | set) & ~clear;
+        } while (!OSAtomicCompareAndSwap32Barrier(oldf, newf, (volatile int32_t *)&flags));
+    }
+};
+```
+> 大家有没有发现在`objc_class`结构体中并没有发现`class_ro_t`和`class_rw_t`的踪影，其实他们是存在bits信息里面，是通过跟`0x00007ffffffffff8UL`进行与运算获得的，`class_ro_t`是在存在`class_rw_t`中的
+> 
+```
+class_rw_t* data() {
+        return (class_rw_t *)(bits & FAST_DATA_MASK);
+    }
+```
+
+> NSObject
+> 
+```
+@interface NSObject <NSObject> {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-interface-ivars"
+    Class isa  OBJC_ISA_AVAILABILITY;
+#pragma clang diagnostic pop
+}
+```
+> 可以看到，这3个都有一个共同点，那就是：isa指针
+
+# 什么是元类？
+> 可能有些同学听到会比较陌生，可能更多听到的是MetaClass，因为在面试中问什么是元类，很多同学都很懵逼，但是接着说，元类就是Metaclass，然后就都豁然开朗的感觉，大家英文都学得这么棒了吗，都忘记中文啦，哈哈哈，开个玩笑。
+> 
+> 通过上面的数据结构可以看到，object与一个对象，它的方法、属性等信息都是存在类中；那么class其实也是一个对象，它的方法、属性等信息都是存在元类当中；
+> 
+### 为什么要设计一个元类呢？
+> 那是因为Objective-C底层方法等调用都是通过消息发送的方式，为了实例对象与类对象的是统一走同一套消息发送逻辑，才会设计出元类这个玩意。
+> 
+> 可以通过下面的图更形象的了解下元类
+> 
+![](http://xbqn.nbshk.cn/20190515164153_LqggVc_Screenshot.jpeg)
+
+# 什么是消息发送？
+> 在Objective-C中，方法调用称为向对象发送消，底层代码基本上都是通过objc_msgSend来发送消息的。
+
+### 消息是如何发送的？
+> 我们先用OC来写一个简单的对象的创建与方法的调用，再转化成C++代码看看是怎么样子的？
+>
+```
+int main(int argc, const char * argv[]) {
+    Test* t = [[Test alloc] init];
+    [t hi];
+    return 0;
+}
+```
+>
+然后执行
+> 
+```
+clang -rewrite-objc main.m
+//目前下面会产生一个main.cpp文件，里面就是main.m的c++代码
+```
+> 在最下面可以找到被`翻译`的代码
+> 
+```
+int main(int argc, const char * argv[]) {
+    Test* t = ((Test *(*)(id, SEL))(void *)objc_msgSend)((id)((Test *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("Test"), sel_registerName("alloc")), sel_registerName("init"));
+    ((void (*)(id, SEL))(void *)objc_msgSend)((id)t, sel_registerName("hi"));
+    return 0;
+}
+```
+> `alloc``init``hi`，我们知道他们三者都是方法，`alloc`是类方法，`init`与`hi`是对象方法，最终他们都是通过字符串被转成了`SEL`，最后通过objc_msgSend将`SEL`发送给对象（object或者class）
+>
+> objc_msgSend底层是用汇编实现的，为什么用汇编呢，原因有2个：
+> 
+ - 因为在C语言中，在一个函数里保护未知的参数，并且跳转到任一的函数指针不太可能实现
+ - 对于`objc_msgSend`而言，效率非常的重要，所以用汇编这样一个非常靠近底层的语言，让objc_msgSend能够运行的尽可能的快一点
+
+# 什么是消息转发？
+> 我们经常会遇到一个crash，就是调用一个未实现方法的时候
+> 
+```
+-[*** ***]:unrecognized selector sent to instance 0x*****
+```
+> 
+> 我们都知道这个是什么问题，那么，同学们知不知道出现这个错误之前我们还有3次机会来挽回这个错误：
+> 
+- resolveInstanceMethod / resolveClassMethod
+- forwardingTargetForSelector
+- methodSignatureForSelector & forwardInvocation
+>
+> 当出现异常时若以上3个都没有处理的话，就会报错了
+> 
+> 不过这个消息转发流程我们自己实现的情况极少，一般的业务开发不太会用到；架构优化的时候可以出现这个时候可以直接转发到容错的类，就可以保证不会crash了。
+
+# 方法调用流程
+> 通过Runtime源码中的汇编代码，可以看到如下流程：
+> 
+- 首先进入 `ENTRY _objc_msgSend`
+- 通过isa指针找到class `GetClassFromIsa`
+- 从cache中找*IMP* `CacheLookup NORMAL`
+- 在`CacheLookup`中看到结果，对应设置标记：CacheHit、CheckMiss、JumpMiss
+- 若没有找到就会进入 `__objc_msgSend_uncached `，内部会执行`MethodTableLookup `
+- 然后跳到了C语言的函数`_class_lookupMethodAndLoadCache3`，里面实际是调用了`lookUpImpOrForward`
+- 若支持cache会再次从cache_getImp获取，相当于再次确认是否有缓存
+- 通过`getMethodNoSuper_nolock`在当前类的方法列表遍历查找
+- 若还是没有找到，开始遍历父类superclass查找，查找的过程与上一步一致
+- 若到这里还没有找到方法的话，就会进入动态方法处理`_class_resolveMethod `，内部会区分实例或者类
+- 若动态方法处理了，则会再执行一遍消息发送；
+- 若动态方法返回NO，则就会进入消息转发流程，可以用下图直观展示：
+- ![](http://xbqn.nbshk.cn/20190515185516_caVCdc_Screenshot.jpeg)
+- 若消息转发都没有处理，那就会进入`-doesNotRecognizeSelector:`，直接Crash了
+
+### Self与Super是啥？
+> 其实Self是隐式参数，是一个对象，通过clang转c++代码后就可以看到每个函数都有2个隐式参数（id self, SEL _cmd）；而Super只是编译器的关键字。所有他们对于消息发送是有区别的
+>
+- objc_msgSend: 对象发送消息是这个
+	- `objc_msgSend(id _Nullable self, SEL _Nonnull op, ...) OBJC_AVAILABLE(10.0, 2.0, 9.0, 1.0, 2.0);`
+- objc_msgSendSuper2: 这个是对Super关键字发送消息，源码里面有解释，使用的是当前类，而非父类
+	- `// objc_msgSendSuper2() takes the current search class, not its superclass.`
+	- `BJC_EXPORT id _Nullable objc_msgSendSuper2(struct objc_super * _Nonnull super, SEL _Nonnull op, ...)
+    OBJC_AVAILABLE(10.6, 2.0, 9.0, 1.0, 2.0);``
+> 
+> ##### Super结构体
+> 
+```
+//里面定义很明显，receiver接收肯定是当前对象（self）；current_class=self.class
+struct objc_super2 {
+    id receiver;
+    Class current_class;
+};
+```
+
+# Runtime中IVar的内存对齐
+> 每个特定平台上的编译器都有自己的默认“对齐系数”，而64位中iOS里这个参数是8。CPU并不是以字节为单位存取数据的，以单字节为单位会导致效率变差，开销变大，所以 CPU 一般会以 2/4/8/16/32 字节为单位来进行存取操作。而这里，会以8个字节为单位存取。
+
+
+# Weak是怎么实现的？
+> 其实就是维护了一个hash表来存放，key是对象的地址，value是weak对象的地址数组。这里value为什么是数组呢？当然是因为一个对象可能被多处weak
+> 
+> 在Runtime源码中有个`objc-weak.h`与`objc-weak.mm`，里面就是实现weak的源代码，我们来看看吧~~
+> 
+> **hash表结构体**
+> 
+```
+struct weak_table_t {
+    weak_entry_t *weak_entries; //保存了所有指向指定对象的 weak 指针
+    size_t    num_entries;//存储空间
+    uintptr_t mask;//参与判断引用计数辅助量
+    uintptr_t max_hash_displacement;//hash key 最大偏移值
+};
+```
+**`weak_entry_t结构体`**
+>
+```
+struct weak_entry_t {
+    DisguisedPtr<objc_object> referent;
+    union {
+        struct {
+            weak_referrer_t *referrers;
+            uintptr_t        out_of_line_ness : 2;
+            uintptr_t        num_refs : PTR_MINUS_2;
+            uintptr_t        mask;
+            uintptr_t        max_hash_displacement;
+        };
+        struct {
+            // out_of_line_ness field is low bits of inline_referrers[1]
+            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
+        };
+    };
+    bool out_of_line() {
+        return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
+    }
+    weak_entry_t& operator=(const weak_entry_t& other) {
+        memcpy(this, &other, sizeof(other));
+        return *this;
+    }
+    weak_entry_t(objc_object *newReferent, objc_object **newReferrer)
+        : referent(newReferent)
+    {
+        inline_referrers[0] = newReferrer;
+        for (int i = 1; i < WEAK_INLINE_COUNT; i++) {
+            inline_referrers[i] = nil;
+        }
+    }
+};
+```
+**DisguisedPtr**
+>
+```
+template <typename T>
+class DisguisedPtr {
+    uintptr_t value;
+    static uintptr_t disguise(T* ptr) {
+        return -(uintptr_t)ptr;
+    }
+    static T* undisguise(uintptr_t val) {
+        return (T*)-val;
+    }
+ public:
+    DisguisedPtr() { }
+    DisguisedPtr(T* ptr) 
+        : value(disguise(ptr)) { }
+    DisguisedPtr(const DisguisedPtr<T>& ptr) 
+        : value(ptr.value) { }
+    DisguisedPtr<T>& operator = (T* rhs) {
+        value = disguise(rhs);
+        return *this;
+    }
+    DisguisedPtr<T>& operator = (const DisguisedPtr<T>& rhs) {
+        value = rhs.value;
+        return *this;
+    }
+    operator T* () const {
+        return undisguise(value);
+    }
+    T* operator -> () const { 
+        return undisguise(value);
+    }
+    T& operator * () const { 
+        return *undisguise(value);
+    }
+    T& operator [] (size_t i) const {
+        return undisguise(value)[i];
+    }
+    // pointer arithmetic operators omitted 
+    // because we don't currently use them anywhere
+};
+```
+*原文解释*
+> > // DisguisedPtr<T> acts like pointer type T*, except the stored value is disguised to hide it from tools like `leaks`.
+> > 
+> >// nil is disguised as itself so zero-filled memory works as expected, which means 0x80..00 is also disguised as itself but we don't care.
+> >
+> > // Note that weak_entry_t knows about this encoding.
+>
+*翻译*
+> > DisguisedPtr就像T*一样的指针类型，除了存储的值伪装成将其隐藏在泄漏之类的工具中。nil伪装成自己，所以零填充内存按预期工作，这意味着0x80..00也伪装成自己，但我们不在乎。请注意，`weak_entry_t `知道这种编码。
+> > 
+>
+### weak是怎么工作的？
+> 我们想要weak的时候，一般都是`weak id obj1 = obj;`，实际是调用了`objc_initWeak`
+> 
+```
+/** 
+ * Initialize a fresh weak pointer to some object location. 
+ * It would be used for code like: 
+ *
+ * (The nil case) 
+ * __weak id weakPtr;
+ * (The non-nil case) 
+ * NSObject *o = ...;
+ * __weak id weakPtr = o;
+ * 
+ * This function IS NOT thread-safe with respect to concurrent 
+ * modifications to the weak variable. (Concurrent weak clear is safe.)
+ *
+ * @param location Address of __weak ptr. 
+ * @param newObj Object ptr. 
+ */
+id
+objc_initWeak(id *location, id newObj)
+{
+    if (!newObj) {
+        *location = nil;
+        return nil;
+    }
+    return storeWeak<DontHaveOld, DoHaveNew, DoCrashIfDeallocating>
+        (location, (objc_object*)newObj);
+}
+```
+> 若weak另一个weak对象`__weak id src = ...;  __weak id dst = src;`，会调用`objc_copyWeak`，`objc_loadWeakRetained `函数取出附有__weak修饰符变量所引用的对象并retain
+> 
+```
+/** 
+ * This function copies a weak pointer from one location to another,
+ * when the destination doesn't already contain a weak pointer. It
+ * would be used for code like:
+ *
+ *  __weak id src = ...;
+ *  __weak id dst = src;
+ * 
+ * This function IS NOT thread-safe with respect to concurrent 
+ * modifications to the destination variable. (Concurrent weak clear is safe.)
+ *
+ * @param dst The destination variable.
+ * @param src The source variable.
+ */
+void
+objc_copyWeak(id *dst, id *src)
+{
+    id obj = objc_loadWeakRetained(src);
+    objc_initWeak(dst, obj);
+    objc_release(obj);
+}
+```
+> weak更新hash表就是上面的storeWeak，我们来看下源码
+> 
+```
+template <HaveOld haveOld, HaveNew haveNew,
+          CrashIfDeallocating crashIfDeallocating>
+static id 
+storeWeak(id *location, objc_object *newObj)
+{
+    assert(haveOld  ||  haveNew);
+    if (!haveNew) assert(newObj == nil);
+    Class previouslyInitializedClass = nil;
+    id oldObj;
+    // SideTable就是存储对象的weak相关的信息
+    SideTable *oldTable;
+    SideTable *newTable;
+    // Acquire locks for old and new values.
+    // Order by lock address to prevent lock ordering problems. 
+    // Retry if the old value changes underneath us.
+ retry:
+    if (haveOld) {
+        oldObj = *location;
+        oldTable = &SideTables()[oldObj];
+    } else {
+        oldTable = nil;
+    }
+    if (haveNew) {
+        newTable = &SideTables()[newObj];
+    } else {
+        newTable = nil;
+    }
+    SideTable::lockTwo<haveOld, haveNew>(oldTable, newTable);
+    if (haveOld  &&  *location != oldObj) {
+        SideTable::unlockTwo<haveOld, haveNew>(oldTable, newTable);
+        goto retry;
+    }
+    // Prevent a deadlock between the weak reference machinery
+    // and the +initialize machinery by ensuring that no 
+    // weakly-referenced object has an un-+initialized isa.
+    if (haveNew  &&  newObj) {
+        Class cls = newObj->getIsa();
+        if (cls != previouslyInitializedClass  &&  
+            !((objc_class *)cls)->isInitialized()) 
+        {
+            SideTable::unlockTwo<haveOld, haveNew>(oldTable, newTable);
+            _class_initialize(_class_getNonMetaClass(cls, (id)newObj));
+            // If this class is finished with +initialize then we're good.
+            // If this class is still running +initialize on this thread 
+            // (i.e. +initialize called storeWeak on an instance of itself)
+            // then we may proceed but it will appear initializing and 
+            // not yet initialized to the check above.
+            // Instead set previouslyInitializedClass to recognize it on retry.
+            previouslyInitializedClass = cls;
+            goto retry;
+        }
+    }
+    // Clean up old value, if any.
+    if (haveOld) {
+        weak_unregister_no_lock(&oldTable->weak_table, oldObj, location);
+    }
+    // Assign new value, if any.
+    if (haveNew) {
+        newObj = (objc_object *)
+            weak_register_no_lock(&newTable->weak_table, (id)newObj, location, 
+                                  crashIfDeallocating);
+        // weak_register_no_lock returns nil if weak store should be rejected
+        // Set is-weakly-referenced bit in refcount table.
+        if (newObj  &&  !newObj->isTaggedPointer()) {
+            newObj->setWeaklyReferenced_nolock();
+        }
+        // Do not set *location anywhere else. That would introduce a race.
+        *location = (id)newObj;
+    }
+    else {
+        // No new value. The storage is not changed.
+    }
+    SideTable::unlockTwo<haveOld, haveNew>(oldTable, newTable);
+    return (id)newObj;
+}
+```
+> storeWeak函数大致步骤如下：
+> 
+- 若拥有旧对象，则先从旧的weak表中解除绑定关系 `weak_unregister_no_lock`
+- 若拥有新对象，则绑定关系设置到新对象的weak表中 `weak_register_no_lock`
+	- 此函数会返回object并赋值给 `newObj` 
+	- 然后对新对象设置弱引用标记 `newObj->setWeaklyReferenced_nolock();`
+- 若没有新对象，则没有任何改变 
+- 最后是直接返回这个心对象 `newObj`
+
+> ##### *可能有些同学不太明白这里为什么有旧对象新对象，感觉有点绕，其实这里的旧对象就是该变量对象的指向对象，在做赋值新对象操作时，此时就会有旧对象新对象的概念*
+
+> 下面来看下2个关键函数(`weak_unregister_no_lock`、`weak_register_no_lock`)的源代码
+> 
+> ### `weak_unregister_no_lock`
+> 
+```
+/** 
+ * Unregister an already-registered weak reference.
+ * This is used when referrer's storage is about to go away, but referent
+ * isn't dead yet. (Otherwise, zeroing referrer later would be a
+ * bad memory access.)
+ * Does nothing if referent/referrer is not a currently active weak reference.
+ * Does not zero referrer.
+ * 
+ * FIXME currently requires old referent value to be passed in (lame)
+ * FIXME unregistration should be automatic if referrer is collected
+ * 
+ * @param weak_table The global weak table.
+ * @param referent The object.
+ * @param referrer The weak reference.
+ */
+void
+weak_unregister_no_lock(weak_table_t *weak_table, id referent_id, 
+                        id *referrer_id)
+{
+    objc_object *referent = (objc_object *)referent_id;
+    objc_object **referrer = (objc_object **)referrer_id;
+    weak_entry_t *entry;
+    if (!referent) return;
+    if ((entry = weak_entry_for_referent(weak_table, referent))) {
+        remove_referrer(entry, referrer);
+        bool empty = true;
+        if (entry->out_of_line()  &&  entry->num_refs != 0) {
+            empty = false;
+        }
+        else {
+            for (size_t i = 0; i < WEAK_INLINE_COUNT; i++) {
+                if (entry->inline_referrers[i]) {
+                    empty = false; 
+                    break;
+                }
+            }
+        }
+        if (empty) {
+            weak_entry_remove(weak_table, entry);
+        }
+    }
+    // Do not set *referrer = nil. objc_storeWeak() requires that the 
+    // value not change.
+}
+```
+> 其实`weak_unregister_no_lock `这个里面逻辑比较清晰，就是找weak引用关系`weak_entry_for_referent `，然后解绑`weak_entry_remove`
+> 
+> ### `weak_register_no_lock`
+> 
+```
+/** 
+ * Registers a new (object, weak pointer) pair. Creates a new weak
+ * object entry if it does not exist.
+ * 
+ * @param weak_table The global weak table.
+ * @param referent The object pointed to by the weak reference.
+ * @param referrer The weak pointer address.
+ */
+id 
+weak_register_no_lock(weak_table_t *weak_table, id referent_id, 
+                      id *referrer_id, bool crashIfDeallocating)
+{
+    objc_object *referent = (objc_object *)referent_id;
+    objc_object **referrer = (objc_object **)referrer_id;
+    if (!referent  ||  referent->isTaggedPointer()) return referent_id;
+    // ensure that the referenced object is viable
+    bool deallocating;
+    if (!referent->ISA()->hasCustomRR()) {
+        deallocating = referent->rootIsDeallocating();
+    }
+    else {
+        BOOL (*allowsWeakReference)(objc_object *, SEL) = 
+            (BOOL(*)(objc_object *, SEL))
+            object_getMethodImplementation((id)referent, 
+                                           SEL_allowsWeakReference);
+        if ((IMP)allowsWeakReference == _objc_msgForward) {
+            return nil;
+        }
+        deallocating =
+            ! (*allowsWeakReference)(referent, SEL_allowsWeakReference);
+    }
+    if (deallocating) {
+        if (crashIfDeallocating) {
+            _objc_fatal("Cannot form weak reference to instance (%p) of "
+                        "class %s. It is possible that this object was "
+                        "over-released, or is in the process of deallocation.",
+                        (void*)referent, object_getClassName((id)referent));
+        } else {
+            return nil;
+        }
+    }
+    // now remember it and where it is being stored
+    weak_entry_t *entry;
+    if ((entry = weak_entry_for_referent(weak_table, referent))) {
+        append_referrer(entry, referrer);
+    } 
+    else {
+        weak_entry_t new_entry(referent, referrer);
+        weak_grow_maybe(weak_table);
+        weak_entry_insert(weak_table, &new_entry);
+    }
+    // Do not set *referrer. objc_storeWeak() requires that the 
+    // value not change.
+    return referent_id;
+}
+```
+> 
+- 这个函数中间有一段保护代码，保证引用对象当前是可用的 `deallocating`
+- 最后就是加入绑定关系
+	- 若已经存在关系，则加入到`weak_referrer_t`的value数组后面 `append_referrer`
+	- 若还没有绑定过关系，则就生成新的`weak_referrer_t`，然后`weak_entry_insert`
