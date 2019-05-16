@@ -155,7 +155,7 @@ union isa_t {
 };
 ```
 >
-> ##### `objc_class` 在objc-runtime.h，原来的那份是在runtime.h中，早已过时
+> ##### `objc_class` 在objc-runtime-new.h，原来的那份是在runtime.h中，早已过时
 > 
 ```
 struct objc_class : objc_object {
@@ -249,9 +249,9 @@ class_rw_t* data() {
 > 可以看到，这3个都有一个共同点，那就是：isa指针
 
 # 什么是元类？
-> 可能有些同学听到会比较陌生，可能更多听到的是MetaClass，因为在面试中问什么是元类，很多同学都很懵逼，但是接着说，元类就是Metaclass，然后就都豁然开朗的感觉，大家英文都学得这么棒了吗，都忘记中文啦，哈哈哈，开个玩笑。
+> 可能有些同学听到会比较陌生，可能更多听到的是MetaClass，因为在面试中问什么是元类，很多同学都很懵逼，但是接着说，元类就是MetaClass，然后就都豁然开朗的感觉，大家英文都学得这么棒了吗，都忘记中文啦，哈哈哈，开个玩笑。
 > 
-> 通过上面的数据结构可以看到，object与一个对象，它的方法、属性等信息都是存在类中；那么class其实也是一个对象，它的方法、属性等信息都是存在元类当中；
+> 通过上面的数据结构可以看到，object是一个对象，它的方法、属性等信息都是存在类中；那么class其实也是一个对象，它的方法、属性等信息都是存在元类当中；
 > 
 ### 为什么要设计一个元类呢？
 > 那是因为Objective-C底层方法等调用都是通过消息发送的方式，为了实例对象与类对象的是统一走同一套消息发送逻辑，才会设计出元类这个玩意。
@@ -332,7 +332,7 @@ int main(int argc, const char * argv[]) {
 - 若消息转发都没有处理，那就会进入`-doesNotRecognizeSelector:`，直接Crash了
 
 ### Self与Super是啥？
-> 其实Self是隐式参数，是一个对象，通过clang转c++代码后就可以看到每个函数都有2个隐式参数（id self, SEL _cmd）；而Super只是编译器的关键字。所有他们对于消息发送是有区别的
+> 其实Self是隐式参数，是一个对象，通过clang转c++代码后就可以看到每个函数都有2个隐式参数（id self, SEL _cmd）；而Super只是编译器的关键字。所以他们对于消息发送是有区别的
 >
 - objc_msgSend: 对象发送消息是这个
 	- `objc_msgSend(id _Nullable self, SEL _Nonnull op, ...) OBJC_AVAILABLE(10.0, 2.0, 9.0, 1.0, 2.0);`
@@ -351,10 +351,41 @@ struct objc_super2 {
 };
 ```
 
-# Runtime中IVar的内存对齐
+# Runtime中ivar的内存对齐
 > 每个特定平台上的编译器都有自己的默认“对齐系数”，而64位中iOS里这个参数是8。CPU并不是以字节为单位存取数据的，以单字节为单位会导致效率变差，开销变大，所以 CPU 一般会以 2/4/8/16/32 字节为单位来进行存取操作。而这里，会以8个字节为单位存取。
 > 
-> 成员变量的地址确实是等于对象地址加上变量的偏移量。
+> 成员变量的地址确实是等于对象地址加上变量的偏移量。我们来看下ivar结构体：
+> 
+```
+struct ivar_t {
+#if __x86_64__
+    // *offset was originally 64-bit on some x86_64 platforms.
+    // We read and write only 32 bits of it.
+    // Some metadata provides all 64 bits. This is harmless for unsigned 
+    // little-endian values.
+    // Some code uses all 64 bits. class_addIvar() over-allocates the 
+    // offset for their benefit.
+#endif
+    int32_t *offset;
+    const char *name;
+    const char *type;
+    // alignment is sometimes -1; use alignment() instead
+    uint32_t alignment_raw;
+    uint32_t size;
+    uint32_t alignment() const {
+        if (alignment_raw == ~(uint32_t)0) return 1U << WORD_SHIFT;
+        return 1 << alignment_raw;
+    }
+};
+```
+> 苹果官方有说明：
+> The most notable new feature is that instance variables in the modern runtime are “non-fragile”:
+> 
+- In the legacy runtime, if you change the layout of instance variables in a class, you must recompile classes that inherit from it.
+- In the modern runtime, if you change the layout of instance variables in a class, you do not have to recompile classes that inherit from it.
+- 大致意思，新版的runtime在程序启动后，加载类的时候通过计算类的大小，动态的调整了成员变量的内存布局，不需要重新编译了。
+>
+> 变量地址 = 对象地址 + ivar.offset。栈内函数递归从高位分配地址
 
 
 # Weak是怎么实现的？
