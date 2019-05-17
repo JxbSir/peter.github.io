@@ -386,6 +386,48 @@ struct ivar_t {
 - 大致意思，新版的runtime在程序启动后，加载类的时候通过计算类的大小，动态的调整了成员变量的内存布局，不需要重新编译了。
 >
 > 变量地址 = 对象地址 + ivar.offset。栈内函数递归从高位分配地址
+> 
+> 下面我们用图来简单说明下，先定义一些ivar，我们这边所讲的占位都是基于64系统，32的机器都要被苹果爸爸淘汰了，咱们就不讲了
+> 
+```
+@interface ViewController ()
+{
+    int a; //4
+    BOOL b;//2
+    short c;//2
+    long d;//8
+    long long e;//8
+    NSString* f;//8
+    NSNumber* g;//8
+    NSObject* h;//8
+    NSInteger j;//8
+}
+```
+> 由于这边内存是以8个字节为单位，上面的ivar的内存布局正好是对齐的，如图：
+> 
+![](http://xbqn.nbshk.cn/20190517111006_nuRm2U_Screenshot.jpeg)
+>
+> 那我们来换下顺序定义
+> 
+```
+@interface ViewController ()
+{
+    int a; //4
+    BOOL b;//2
+    long d;//8
+    short c;//2
+    long long e;//8
+    NSString* f;//8
+    NSNumber* g;//8
+    NSObject* h;//8
+    NSInteger j;//8
+}
+```
+> 那么，接下来的内存布局是怎么样的呢？
+> 
+![](http://xbqn.nbshk.cn/20190517111229_f8egIM_Screenshot.jpeg)
+>
+> 根据这两张图的对比，想必同学们应该比较清楚什么是内存对齐了
 
 
 # Weak是怎么实现的？
