@@ -1,0 +1,11 @@
+---
+layout: post
+title: Weex实现原理
+date: 2019-08-16 20:00:00
+tags: iOS
+---
+
+之前有介绍过如何集成weex到项目中，不了解的可以看看：[集成Weex](/2019/02/FirstWeex/)
+
+# 什么是Runtime？
+> Objective-C是基础C语言扩展出来的一门语言，并且是加入了面向对象特性和Smalltalk式的消息发送机制；然后这个扩展的核心，就是Runtime，它是Objective-C面向对象和动态机制的基石。
