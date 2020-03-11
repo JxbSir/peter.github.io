@@ -1,0 +1,59 @@
+---
+layout: post
+title: iOS逆向开发
+date: 2020-03-11 20:00:00
+tags: iOS
+---
+
+# iOS逆向开发
+> 现在越狱的同学越来越少了，因为苹果经过这么多年借鉴越狱开发者的功能使得iOS本身已经很方便，以至于用户没有太大的必要去越狱了。
+> 
+> 但是作为一名iOS开发者，逆向开发还有必要的，不管是学习他人的App还是自己想做一些功能，例如微信抢红包啥的。
+> 
+> **下面所提到的所有逆向都支持安装在非越狱的iPhone上**
+
+### 准备工具
+- 一台已越狱的iPhone（用来砸壳）：本文用的是iOS13.2.2
+- yololib：https://github.com/gaoshilei/yololib
+- frida
+	- 越狱手机安装： 源：build.frida.re
+	- mac安装：sudo pip3 install frida
+	- 下载python脚本：https://github.com/AloneMonkey/frida-ios-dump
+		- 配置：sudo pip3 install -r requirements.txt --ignore-installed six 
+- ssh：越狱必备工具
+- iresign：重签工具
+
+### 砸壳
+> 
+- 配置代理：iproxy 2222 22
+- 查看手机已安装app：dump.py -l
+- 砸壳：dump.py (app 名称及bundleID)
+> 
+> 不出意外，砸壳成功，当前目录就会产生一个ipa
+> 
+> 可以通过otool查看砸壳是否成功
+> 
+```
+otool -l Payload/xxx.app/xxx | grep crypt
+```
+> cryptid为0就是成功了
+> 
+```
+cryptid 0
+```
+
+### 注入
+>
+```
+yololib zzz framework/xxx.framework/xxx
+```
+> 查看签名情况
+> 
+```
+codesign -vv -d xxx.framework
+```
+> ipa重签的时候记得需要把frameworks下面的所有重新签名先
+> 
+```
+codesign -fs "Apple Distribution: xxxx (xxxx)" xxx.framework
+```
