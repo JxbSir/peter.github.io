@@ -1,0 +1,106 @@
+---
+layout: post
+title: iOS启动优化之二进制重排
+date: 2021-03-01 20:00:00
+tags: iOS
+---
+
+# 启动优化
+
+> 关于启动优化，在客户端开发中是一个老生常谈的话题，图片压缩/删除代码等方式都已经老掉牙了，一般的面试中也回答这些方案，在众多面试者中也无亮点。
+> 
+> 下面的文章主要来讲讲，利用二进制重排的方案，来做优化启动时间。
+>
+
+# 概念
+> 在讲重排之前，我们需要了解几个概念。
+
+> ## 虚拟内存和物理内存
+> - 物理内存：内存条(硬件)上的地址就叫物理地址，以前的计算机都是通过CPU访问物理内存拿到数据的，这样存在安全问题(金手指?)，而且随着软件发展速度快于硬件速度，物理内存也越发不够......
+
+> - 虚拟内存：在app运行时，CPU首先会访问虚拟内存地址，MMU内存管理单元配合操作系统负责地址翻译(虚实地址互转)，这样CPU就能访问物理内存地址读取数据了。虚拟内存实际就是一张表，保存着和物理内存的映射表。
+>   - 虚拟地址都是从0开始，黑客们可以通过偏移拿到其他地址的数据，ASLR(Address Space Layout Randomization)技术就是为了解决虚拟地址固定不变导致安全问题而出现的。
+
+> - 内存分页管理：数据会以页的方式来存储，方便管理(Linux和MacOS每页数据是4k，iOS是16k)，每个app会被分为若干页，运行的时候会一页一页按需加载。当数据需要被使用，而且没有被加载进页表(虚拟内存里)的时候，这个时候会触发“中断”(缺页异常PageFault)，系统会让将数据载入到物理内存，这个时候再去取。
+
+> ## Page Fault
+>> 什么是Page Fault?
+>>> 当进程访问它的虚拟地址空间中的PAGE时，如果这个PAGE目前还不在物理内存中，此时CPU是不能干活的，Linux会产生一个hard page fault中断。系统需要从慢速设备（如磁盘）将对应的数据PAGE读入物理内存，并建立物理内存地址与虚拟地址空间PAGE的映射关系。然后进程才能访问这部分虚拟地址空间的内存。
+>
+>> Page Fault又分为以下几种:
+>> - major page fault
+>>   - 也称为 hard page fault, 指需要访问的内存不在虚拟地址空间，也不在物理内存中，需要从慢速设备载入。从swap 回到物理内存也是 hard page fault。
+>> - minor page fault
+>>   - 也称为 soft page fault, 指需要访问的内存不在虚拟地址空间，但是在物理内存中，只需要MMU建立物理内存和虚拟地址空间的映射关系即可。
+>> - invalid(segment fault)
+>>   - 也称为 segment fault，指进程需要访问的内存地址不在它的虚拟地址空间范围内，属于越界访问，内核会报 segment fault错误
+ 
+# 开始表演~
+> 那么，我们写的一个app，如何知道启动的时候总共有多少次page fault呢？
+>> 请打开Instrument，打开system trace来启动app，我们以微信为例：
+>> 
+>> ![](http://pic.blog.jinxuebin.cn/20210226142328_xH7w9h_WX20210226-142314.jpeg)
+>> 
+>> 它启动总共有3040次page fault，耗时365ms，如果我们可以减少这个page fault次数，是不是就能减少启动时间呢？
+>> 
+>> 答案是肯定的。
+>> 
+> #### 先来说说为什么会出现那么多次的page fault呢？
+>> 前面我们有提到，iOS中，每个page的size是16k，一页放不下时就需要放到第二页，类似于我们列表页的分页。我们代码中每个函数在符号表中都是有加载顺序的并存放在page中，在xcode -> build settings -> link map设置，就可以看到linkmap导出的txt文件，如图：
+>>
+>> ![](http://pic.blog.jinxuebin.cn/20210226143335_jfA54j_WX20210226-143318.jpeg)
+>> 
+>>下面画一个简单的图来表示下page，==蓝色==代表普通函数，==红色==代表启动时需要执行的函数：
+>> 
+>> ![](http://pic.blog.jinxuebin.cn/20210226143846_OjclMn_Screenshot.jpeg)
+>>
+>> 那么如果，我们把函数的顺序修改下呢？
+>> 
+>> ![](http://pic.blog.jinxuebin.cn/20210226144136_5DcgZQ_Screenshot.jpeg)
+>> 
+>> 设想一次，像微信一样体量的app，如果重排后，是不是可以大大的优化启动时间。
+>> 
+
+### 那么问题来了，怎么重排呢？
+> 前面提到了link map，我们先用demo试试。
+>
+> 我在控制器里只写了这3个函数
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226145055_zq3bvx_Screenshot.jpeg)
+>
+> 然后导出下link map看下：
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226145040_umwstj_Screenshot.jpeg)
+>
+> 可以看到，这里的顺序是我们代码的书写顺序，是的，没错。
+>
+> 这3个函数，只有load是启动前会执行，test1与test3不需要执行，所以应该把他重排的后面去，我们改下书写顺序就可以了。
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226145238_MR9b1p_Screenshot.jpeg)
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226145259_NcaBEL_Screenshot.jpeg)
+>
+> ### 那么问题又来了，有没有发现，我们的test1与test2都是在main函数前面，证明这样手动的换顺序还不够，再说我们不止一个控制器，也不止一个模块，所以这种方案是不行的。
+>
+> 我们在看objc源码的时候，可以发现目录中有一个libobjc.order文件，其实它也做了二进制重排。
+>
+> 我们自己写创建一个order排序文件：
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226150118_ThsHsD_Screenshot.jpeg)
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226150321_72pT6U_Screenshot.jpeg)
+>
+> 然后，我们build下，再看看link map.txt
+>
+> ![](http://pic.blog.jinxuebin.cn/20210226150409_waN9Cx_Screenshot.jpeg)
+>
+> 没错，成功了，test1与test2就在启动后了
+>
+
+## 很多同学又想问了，一个app这么多代码，难道手动整理出哪些是启动前需要的？
+>
+> 当然不是哦，我们可以通过hook objc_msgSend，这样就可以知道哪些函数是在启动前执行了
+> 
+> 不过这种hook是hook不了block等的，此时就需要利用clang插桩/汇编插桩，本文重点不hook与插桩，所以不在这里过多讲述。
+>
+## 以上，就是二进制重排。
