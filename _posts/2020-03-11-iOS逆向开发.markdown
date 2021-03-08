@@ -57,4 +57,5 @@ codesign -vv -d xxx.framework
 > 
 ```
 codesign -fs "Apple Distribution: xxxx (xxxx)" xxx.framework
+//若app有plugIns，务必删除
 ```
