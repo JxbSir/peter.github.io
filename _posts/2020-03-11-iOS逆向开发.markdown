@@ -26,7 +26,7 @@ tags: iOS
 ### 砸壳
 > 
 - 配置代理：iproxy 2222 22
-- 登录ssh：ssh -p 2222 root@127.0.0.1 (密码默认是aphine)
+- 登录ssh：ssh -p 2222 root@127.0.0.1 (密码默认是alpine)
 - 查看手机已安装app：dump.py -l
 - 砸壳：dump.py (app 名称及bundleID)
 > 
