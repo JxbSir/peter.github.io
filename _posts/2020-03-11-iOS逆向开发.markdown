@@ -46,7 +46,9 @@ cryptid 0
 ### 注入
 >
 ```
-yololib zzz framework/xxx.framework/xxx
+yololib <mach-o> <framework/xxx.framework/xxx>
+#注意，这里是framework的mach-o必须是相对路径
+#当出现启动crash，报无法加载framework时，可以通过machOView来看路径是否正确
 ```
 > 查看签名情况
 > 
