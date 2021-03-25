@@ -16,7 +16,7 @@ tags: iOS
 - 一台已越狱的iPhone（用来砸壳）：本文用的是iOS13.2.2
 - yololib：https://github.com/gaoshilei/yololib
 - frida
-	- 越狱手机安装： 源：build.frida.re
+	- 越狱手机安装： 源：https://build.frida.re
 	- mac安装：sudo pip3 install frida
 	- 下载python脚本：https://github.com/AloneMonkey/frida-ios-dump
 		- 配置：sudo pip3 install -r requirements.txt --ignore-installed six 
