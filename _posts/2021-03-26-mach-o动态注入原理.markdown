@@ -1,0 +1,41 @@
+---
+layout: post
+title: mach-o动态注入原理
+date: 2021-03-25 20:00:00
+tags: iOS
+---
+
+
+# mach-o动态注入原理
+> 本文主要讲解开源工具yololib的实现原理，超级简单，源码总共也就200多行，并无多大技术含量，主要是为了记录备忘
+
+##### 命令
+```c
+// 命令基本用法
+yololib <mach-o> <dylib file>
+```
+
+##### 入口代码
+> ![](http://pic.blog.jinxuebin.cn/20210326092749_ythRn1_Screenshot.jpeg)
+>
+> 可以看出，这里是记录了2个路径，然后调用了`inject_file`函数
+
+##### 函数：`inject_file`
+> ![](http://pic.blog.jinxuebin.cn/20210326093035_DtCYpZ_Screenshot.jpeg)
+>
+> 步骤：
+> > - fopen打开mach-o
+> > - fread读取mach-o信息
+> > - 根据读取到的buffer获取fat_header信息`struct fat_header* fh = (struct fat_header*) (buffer);`
+> > - 根据magic类型来区分32位还是64位：若magic=FAT_MAGIC时，需要用cputype来区分
+> > - 然后32位调用`inject_dylib`，64位调用`inject_dylib_64`
+
+##### 函数：`inject_dylib`
+> ![](http://pic.blog.jinxuebin.cn/20210326093634_MmMRyB_Screenshot.jpeg)
+
+
+##### 函数：`inject_dylib_64`
+> ![](http://pic.blog.jinxuebin.cn/20210326093656_Y2lpfC_Screenshot.jpeg)
+
+##### 原理
+`#include <mach-o/loader.h>`，这个头文件中用到一个重要的结构体，就是`dylib_command`，需要通过设置它的参数来注入，最终调用`fwrite`来写入即可。
